@@ -1,9 +1,10 @@
+import os
 from flask import Flask, request, jsonify
 import requests
 from io import BytesIO
-import tensorflow as tf
 import numpy as np
 from tensorflow.keras.preprocessing import image
+import tensorflow as tf
 
 app = Flask(__name__)
 
@@ -37,17 +38,13 @@ def predict_image_class_from_url(url, threshold=0.7):
     except Exception as e:
         return {"error": str(e)}
 
-@app.route('/predict', methods=['GET', 'POST'])
+@app.route('/predict', methods=['POST'])
 def predict():
     """Endpoint to handle prediction requests."""
     try:
-        if request.method == 'POST':
-            # Get JSON data from the POST request
-            data = request.json
-            image_url = data.get("url")
-        elif request.method == 'GET':
-            # Get the URL parameter from the query string
-            image_url = request.args.get("url")
+        # Get JSON data from the POST request
+        data = request.json
+        image_url = data.get("url")
         
         if not image_url:
             return jsonify({"error": "No URL provided"}), 400
@@ -58,6 +55,6 @@ def predict():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))  # Use Render's PORT environment variable
+    app.run(host='0.0.0.0', port=port)
